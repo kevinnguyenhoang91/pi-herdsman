@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.1](https://github.com/boadij/pi-herdsman/compare/v0.15.0...v0.15.1) (2026-09-24)
+
+
+### Documentation
+
+* add contribution guidelines ([c827b0b](https://github.com/boadij/pi-herdsman/commit/c827b0bea1742753f19eed63efa66b48ba90c42c))
+
 ## [0.15.0](https://github.com/boadij/pi-herdsman/compare/v0.14.2...v0.15.0) (2026-09-24)
 
 
