@@ -65,6 +65,50 @@ Then run Pi in the Herdr pane:
 pi
 ```
 
+### oh-my-pi (omp) runtime
+
+omp is a pi fork whose bundled legacy-pi host shims diverge from upstream pi
+0.87. This fork (`kevinnguyenhoang91/pi-herdsman`) adds a compatibility layer
+for it; see `extension/omp-compat.ts`.
+
+Caveat: `omp plugin install github:kevinnguyenhoang91/pi-herdsman` **fails**
+— omp's installer runs `bun install` with lifecycle scripts untrusted, so the
+`prepare` build never produces `dist/` and extension validation aborts with
+`declared extension entry not found on disk`. Install through bun directly
+instead:
+
+```sh
+# once: allow the fork's build script in the omp plugins root
+# (adds "trustedDependencies": ["pi-herdsman"])
+cd ~/.omp/plugins
+bun add --trust github:kevinnguyenhoang91/pi-herdsman
+```
+
+Then enable it in omp's plugin state (`~/.omp/plugins/omp-plugins.lock.json`):
+
+```json
+{
+  "plugins": {
+    "pi-herdsman": { "version": "0.15.0", "enabledFeatures": null, "enabled": true }
+  }
+}
+```
+
+herdr launches omp with `--kind omp`; install its omp integration once:
+
+```sh
+herdr integration install omp
+```
+
+Upgrading later:
+
+```sh
+cd ~/.omp/plugins
+bun remove pi-herdsman
+bun add --trust github:kevinnguyenhoang91/pi-herdsman
+# re-add the lockfile entry above if omp plugin list no longer shows it
+```
+
 ### Docker / remote machine
 
 For a self-contained, SSH-ready remote coding-agent environment, see
