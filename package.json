@@ -53,7 +53,8 @@
     "package:audit": "node scripts/package-audit.mjs",
     "validate": "npm run check && npm run build && npm run package:audit",
     "release:check": "npm run validate && npm publish --dry-run --ignore-scripts",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "@earendil-works/pi-ai": ">=0.87.0 <0.88.0",
