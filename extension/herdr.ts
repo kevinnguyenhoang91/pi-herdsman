@@ -13,6 +13,11 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { claimProcessLock, ProcessLockOccupiedError } from "./lock.ts";
 import { OperationError } from "./errors.ts";
 import { herdsmanTempRoot } from "./storage.ts";
+import {
+  herdrAgentKind,
+  herdrAgentStateExtensionPath,
+  isHerdrAgentSession,
+} from "./omp-compat.ts";
 
 export type HerdrRecord = Record<string, any>;
 export type HerdrSessionSnapshot = {
@@ -98,11 +103,7 @@ const LIFECYCLE_SUBSCRIPTIONS = [
 const LIFECYCLE_SUBSCRIPTION_ID = "pi-herdsman:lifecycle";
 const LIFECYCLE_RECONNECT_MS = 1_000;
 const MAX_EVENT_BUFFER_BYTES = 1024 * 1024;
-const HERDR_AGENT_STATE_EXTENSION = join(
-  getAgentDir(),
-  "extensions",
-  "herdr-agent-state.ts",
-);
+const HERDR_AGENT_STATE_EXTENSION = herdrAgentStateExtensionPath(getAgentDir());
 function error(operation: string, message: string, details?: unknown): never {
   throw new OperationError({
     category: "internal_failure",
@@ -1212,7 +1213,7 @@ export async function startHerdrAgent(
           "start",
           attempt.herdrAgent,
           "--kind",
-          "pi",
+          herdrAgentKind(),
           "--pane",
           paneId,
           "--timeout",
@@ -1540,7 +1541,7 @@ export function sessionIdentity(
   };
   const kind = session.kind;
   const sessionValue = session.value;
-  if (session.source !== "herdr:pi" || session.agent !== "pi") return undefined;
+  if (!isHerdrAgentSession(session.source, session.agent)) return undefined;
   return (kind === "id" || kind === "path") &&
     typeof sessionValue === "string" &&
     sessionValue.length > 0

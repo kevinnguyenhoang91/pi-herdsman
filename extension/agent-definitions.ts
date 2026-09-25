@@ -15,9 +15,9 @@ import { fileURLToPath } from "node:url";
 import {
   CONFIG_DIR_NAME,
   getAgentDir,
-  loadProjectContextFiles,
   parseFrontmatter as parsePiFrontmatter,
 } from "@earendil-works/pi-coding-agent";
+import { loadProjectContextFiles } from "./omp-compat.ts";
 import { snapshotTextFiles } from "./core.ts";
 import { herdsmanTempRoot } from "./storage.ts";
 

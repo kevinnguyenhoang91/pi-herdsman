@@ -16,7 +16,7 @@ import { OperationError } from "./errors.ts";
 import { herdsmanTempRoot } from "./storage.ts";
 
 export const watchedResultPaths = new Map<string, Function>();
-export const projectContextCwds: string[] = [];
+export { projectContextCwds } from "./omp-compat.ts";
 export const nativeSessions = new Map<
   string,
   {
@@ -93,6 +93,7 @@ const {
   buildContextEntries: nativeBuildContextEntries,
   buildSessionProjection: nativeBuildSessionProjection,
   CURRENT_SESSION_VERSION: nativeCurrentSessionVersion,
+  sessionEntryToContextMessages: nativeSessionEntryToContextMessages,
   parseFrontmatter: nativeParseFrontmatter,
   parseSessionEntries: nativeParseSessionEntries,
   truncateTail: nativeTruncateTail,
@@ -226,13 +227,10 @@ mock.module("@earendil-works/pi-coding-agent", {
     buildContextEntries: nativeBuildContextEntries,
     buildSessionProjection: nativeBuildSessionProjection,
     CURRENT_SESSION_VERSION: nativeCurrentSessionVersion,
+    sessionEntryToContextMessages: nativeSessionEntryToContextMessages,
     getAgentDir: () => PI_AGENT_ROOT,
     parseFrontmatter: nativeParseFrontmatter,
     parseSessionEntries: nativeParseSessionEntries,
-    loadProjectContextFiles: ({ cwd }: { cwd: string }) => {
-      projectContextCwds.push(cwd);
-      return [];
-    },
     SessionManager: {
       listAll: async () => [...nativeSessions.values()],
       open: (path: string) => {

@@ -11,19 +11,23 @@ import type {
   ThinkingLevelSelectEvent,
 } from "@earendil-works/pi-coding-agent";
 import {
-  contentText,
   getSupportedThinkingLevels,
   StringEnum,
 } from "@earendil-works/pi-ai";
 import {
-  buildSessionProjection,
   CURRENT_SESSION_VERSION,
   DynamicBorder,
   getAgentDir,
   parseSessionEntries,
   SessionManager,
+  sessionEntryToContextMessages,
   truncateTail,
 } from "@earendil-works/pi-coding-agent";
+import {
+  buildSessionProjection,
+  contentText,
+  registerEntryRenderer,
+} from "./omp-compat.ts";
 import { createHash, randomUUID } from "node:crypto";
 import {
   realpathSync,
@@ -1792,7 +1796,8 @@ function isLeadSessionBoundary(
   pane: any,
   ownerSessionId: string,
 ): boolean {
-  if (!isPiAgent(agent) || pane?.agent !== "pi") return false;
+  if (!isPiAgent(agent) || (pane?.agent !== "pi" && pane?.agent !== "omp"))
+    return false;
   const session = sessionIdentity(agent?.agent_session);
   if (session?.kind !== "path") return false;
   try {
@@ -6487,7 +6492,7 @@ export default function (pi: ExtensionAPI): void {
     });
     return;
   }
-  pi.registerEntryRenderer(AGENT_DEFINITIONS_ENTRY, (entry, options, theme) => {
+  registerEntryRenderer(pi, AGENT_DEFINITIONS_ENTRY, (entry, options, theme) => {
     const definitions = entry?.data?.definitions;
     if (
       !Array.isArray(definitions) ||
@@ -6508,7 +6513,7 @@ export default function (pi: ExtensionAPI): void {
       instructions,
     });
   });
-  pi.registerEntryRenderer(HERD_RUN_ENTRY, (entry, _options, theme) =>
+  registerEntryRenderer(pi, HERD_RUN_ENTRY, (entry, _options, theme) =>
     renderHerdRunEntry(entry, theme),
   );
   pi.registerMessageRenderer(
@@ -8346,7 +8351,10 @@ export default function (pi: ExtensionAPI): void {
       );
       const diagnostics = live.some(
         (agent: any) =>
-          (agent?.agent === "pi" || agent?.agent_session?.agent === "pi") &&
+          (agent?.agent === "pi" ||
+            agent?.agent_session?.agent === "pi" ||
+            agent?.agent === "omp" ||
+            agent?.agent_session?.agent === "omp") &&
           !isPiAgent(agent),
       )
         ? [
